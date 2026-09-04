@@ -38,6 +38,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
         working-directory: frontend
+      # Frontend Coach tests import the real API adapters. A clean runner therefore needs
+      # the locked API runtime dependencies before Vitest performs module discovery.
+      - run: npm ci --omit=dev
+        working-directory: api
       - run: npm test
         working-directory: frontend
       # A broken import or bad JSX fails the build long before any test covers it.
