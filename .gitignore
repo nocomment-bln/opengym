@@ -19,4 +19,5 @@ node_modules/
 .codex/
 CLAUDE.md
 AGENTS.md
+.deploy-setup.local.json
 graphify-out/

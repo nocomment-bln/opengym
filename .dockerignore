@@ -3,5 +3,6 @@ frontend/dist
 media
 data
 .env
+.deploy-setup.local.json
 .git
 *.log
