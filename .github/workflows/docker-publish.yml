@@ -44,6 +44,7 @@ jobs:
           images: ghcr.io/${{ steps.repo.outputs.owner }}/opengym-${{ matrix.image }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
