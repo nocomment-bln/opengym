@@ -74,6 +74,7 @@ export default {
   'Add to my plan': '加入我的计划',
   'How to': '动作要领',
   'instructions in English': '说明为英文',
+  'instructions in German': '说明为德文',
   'New routine': '新训练日',
   'Add “{0}”': '添加“{0}”',
   '“{0}” added to {1}': '“{0}”已加入 {1}',

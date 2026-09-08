@@ -74,6 +74,7 @@ export default {
   'Add to my plan': 'मेरी योजना में जोड़ें',
   'How to': 'कैसे करें',
   'instructions in English': 'निर्देश अंग्रेज़ी में',
+  'instructions in German': 'निर्देश जर्मन में',
   'New routine': 'नया रूटीन',
   'Add “{0}”': '"{0}" जोड़ें',
   '“{0}” added to {1}': '"{0}" को {1} में जोड़ा गया',

@@ -74,6 +74,7 @@ export default {
   'Add to my plan': '내 계획에 추가',
   'How to': '운동 방법',
   'instructions in English': '설명은 영어로 제공',
+  'instructions in German': '설명은 독일어로 제공',
   'New routine': '새 루틴',
   'Add “{0}”': '"{0}" 추가',
   '“{0}” added to {1}': '"{0}"이(가) {1}에 추가됨',

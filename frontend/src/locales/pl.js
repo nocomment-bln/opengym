@@ -74,6 +74,7 @@ export default {
   'Add to my plan': 'Dodaj do mojego planu',
   'How to': 'Wykonanie',
   'instructions in English': 'instrukcje po angielsku',
+  'instructions in German': 'instrukcje po niemiecku',
   'New routine': 'Nowy plan treningowy',
   'Add “{0}”': 'Dodaj „{0}”',
   '“{0}” added to {1}': '„{0}” dodano do {1}',

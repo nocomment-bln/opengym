@@ -74,6 +74,7 @@ export default {
   'Add to my plan': 'Ajouter à mon plan',
   'How to': 'Exécution',
   'instructions in English': 'instructions en anglais',
+  'instructions in German': 'instructions en allemand',
   'New routine': 'Nouvelle routine',
   'Add “{0}”': 'Ajouter « {0} »',
   '“{0}” added to {1}': '« {0} » ajouté à {1}',

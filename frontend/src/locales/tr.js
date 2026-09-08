@@ -74,6 +74,7 @@ export default {
   'Add to my plan': 'Planıma ekle',
   'How to': 'Nasıl yapılır',
   'instructions in English': 'talimatlar İngilizce',
+  'instructions in German': 'talimatlar Almanca',
   'New routine': 'Yeni rutin',
   'Add “{0}”': '“{0}” ekle',
   '“{0}” added to {1}': '“{0}”, {1} planına eklendi',
