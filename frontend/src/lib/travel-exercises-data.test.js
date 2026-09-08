@@ -7,6 +7,18 @@ const VALID_LEVEL = new Set(['beginner', 'intermediate', 'advanced'])
 const BANNED = /\b(stuhl|bett|bank|tisch|hantel|band|ball|matte|gerät|chair|bed|bench|table|dumbbell|barbell)\b/i
 
 describe('travel strength catalogue', () => {
+  it('gives all 48 exercises unique motion keys and distinct timelines', () => {
+    expect(new Set(TRAVEL_EXERCISES.map(ex => ex.motion)).size).toBe(48)
+    const timelines = TRAVEL_EXERCISES.map(ex => JSON.stringify(BODYWEIGHT_MOTIONS[ex.motion].frames))
+    expect(new Set(timelines).size).toBe(48)
+  })
+
+  it.each(TRAVEL_EXERCISES.map(ex => [ex.motion]))('%s has an authored moving demonstration', key => {
+    const def = BODYWEIGHT_MOTIONS[key]
+    expect(def.placeholder, key).not.toBe(true)
+    expect(new Set(def.frames.map(frame => JSON.stringify(frame.pose))).size, key).toBeGreaterThan(1)
+  })
+
   it('contains the exact stable id range', () => {
     expect(TRAVEL_EXERCISES).toHaveLength(48)
     expect(TRAVEL_EXERCISES.map(e => e.id)).toEqual(

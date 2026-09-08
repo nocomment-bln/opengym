@@ -76,11 +76,80 @@ describe('bodyweight motion helpers', () => {
     }
   })
 
-  it('keeps the other 45 catalogue motions as marked neutral placeholders', () => {
-    const pilots = new Set(['squat', 'standard-push-up', 'single-leg-hip-hinge'])
-    const placeholders = Object.entries(BODYWEIGHT_MOTIONS).filter(([key]) => !pilots.has(key))
-    expect(placeholders).toHaveLength(45)
-    expect(placeholders.every(([, motion]) => motion.placeholder === true)).toBe(true)
+  it('keeps both feet planted throughout squat repetitions', () => {
+    for (const key of ['squat', 'pause-squat', 'narrow-squat', 'sumo-squat', 'wall-squat']) {
+      const { frames } = BODYWEIGHT_MOTIONS[key]
+      for (const joint of ['ankleL', 'ankleR']) {
+        expect(new Set(frames.map(frame => frame.pose[joint].join(','))).size, `${key}:${joint}`).toBe(1)
+      }
+    }
+  })
+
+  it('keeps hand and toe support planted while push-up shoulders descend', () => {
+    for (const key of ['standard-push-up', 'wide-push-up', 'close-push-up', 'diamond-push-up']) {
+      const { frames } = BODYWEIGHT_MOTIONS[key]
+      for (const joint of ['wristL', 'wristR', 'ankleL', 'ankleR']) {
+        expect(new Set(frames.map(frame => frame.pose[joint].join(','))).size, `${key}:${joint}`).toBe(1)
+        expect(frames[0].pose[joint][1], `${key}:${joint} ground`).toBeGreaterThanOrEqual(210)
+      }
+      expect(frames[1].pose.shoulderL[1], key).toBeGreaterThan(frames[0].pose.shoulderL[1])
+    }
+  })
+
+  it('shows a real pause at squat depth and successively narrower push-up hands', () => {
+    const pause = BODYWEIGHT_MOTIONS['pause-squat']
+    expect(pause.frames.length).toBeGreaterThanOrEqual(4)
+    expect(pause.frames[1].pose.hipL[1]).toBe(pause.frames[2].pose.hipL[1])
+    expect(pause.frames[2].at - pause.frames[1].at).toBeGreaterThanOrEqual(0.2)
+    const widths = ['wide-push-up', 'standard-push-up', 'close-push-up', 'diamond-push-up'].map(key => {
+      const p = posterPose(BODYWEIGHT_MOTIONS[key])
+      return Math.hypot(p.wristR[0] - p.wristL[0], p.wristR[1] - p.wristL[1])
+    })
+    for (let i = 1; i < widths.length; i++) expect(widths[i]).toBeLessThan(widths[i - 1])
+  })
+
+  it('provides walls for all wall-supported movements', () => {
+    expect(BODYWEIGHT_MOTIONS['wall-squat'].wall).toBe('left')
+    for (const key of ['wall-push-up', 'wall-handstand', 'wall-walk', 'wall-angel']) {
+      expect(['left', 'right']).toContain(BODYWEIGHT_MOTIONS[key].wall)
+    }
+  })
+
+  it('keeps isometric support and pelvis still during small tension pulses', () => {
+    for (const key of ['wall-handstand', 'forearm-plank', 'side-plank', 'hollow-body-hold']) {
+      const { frames } = BODYWEIGHT_MOTIONS[key]
+      expect(new Set(frames.map(frame => frame.pose.neck.join(','))).size, key).toBeGreaterThan(1)
+      for (const joint of ['hipL', 'hipR', 'ankleL', 'ankleR']) {
+        expect(new Set(frames.map(frame => frame.pose[joint].join(','))).size, `${key}:${joint}`).toBe(1)
+      }
+    }
+  })
+
+  it('returns to a stable base between alternating limb reaches', () => {
+    for (const key of ['reverse-lunge', 'quadruped-hip-extension', 'quadruped-lateral-leg-raise', 'slow-mountain-climber', 'dead-bug', 'bird-dog', 'bear-plank-shoulder-tap']) {
+      const { frames } = BODYWEIGHT_MOTIONS[key]
+      expect(frames.length, key).toBeGreaterThanOrEqual(5)
+      for (const joint of ['hipL', 'wristL', 'ankleR']) {
+        expect(frames[2].pose[joint].join(','), `${key}:${joint}`).toBe(frames[0].pose[joint].join(','))
+      }
+      const activeJoint = key === 'bear-plank-shoulder-tap' ? 'wrist' : 'knee'
+      for (const side of ['L', 'R']) {
+        expect(new Set(frames.map(frame => frame.pose[`${activeJoint}${side}`].join(','))).size, `${key}:${side}`).toBeGreaterThan(1)
+      }
+    }
+  })
+
+  it('keeps every pose inside the visible canvas including head radius', () => {
+    for (const [key, def] of Object.entries(BODYWEIGHT_MOTIONS)) {
+      for (const { pose } of def.frames) {
+        for (const [joint, [x, y]] of Object.entries(pose)) {
+          expect(x, `${key}:${joint}`).toBeGreaterThanOrEqual(joint === 'head' ? 16 : 8)
+          expect(x, `${key}:${joint}`).toBeLessThanOrEqual(joint === 'head' ? 224 : 232)
+          expect(y, `${key}:${joint}`).toBeGreaterThanOrEqual(joint === 'head' ? 16 : 8)
+          expect(y, `${key}:${joint}`).toBeLessThanOrEqual(joint === 'head' ? 204 : 220)
+        }
+      }
+    }
   })
 
   it('validates every exported motion definition', () => {
