@@ -21,7 +21,10 @@ export function validateMotion(def) {
   if (!(def.duration >= 2 && def.duration <= 6)) errors.push('duration')
   if (!Array.isArray(def.frames) || def.frames.length < 2) return [...errors, 'frames']
   if (!Number.isInteger(def.poster) || def.poster < 0 || def.poster >= def.frames.length) errors.push('poster')
-  if (def.frames.some(frame => !frame || typeof frame !== 'object' || !Number.isFinite(frame.at))) return [...errors, 'frame']
+  for (let index = 0; index < def.frames.length; index++) {
+    const frame = def.frames[index]
+    if (!Object.hasOwn(def.frames, index) || !frame || typeof frame !== 'object' || !Number.isFinite(frame.at)) return [...errors, 'frame']
+  }
   if (def.frames[0].at !== 0 || def.frames.at(-1).at !== 1) errors.push('range')
   if (def.frames.some((frame, i) => i && frame.at <= def.frames[i - 1].at)) errors.push('order')
   for (const frame of def.frames) {

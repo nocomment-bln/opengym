@@ -48,6 +48,13 @@ describe('bodyweight motion helpers', () => {
     expect(() => validateMotion(malformed)).not.toThrow()
     expect(validateMotion(malformed)).toContain('frame')
   })
+  it('returns errors instead of throwing for sparse frame arrays', () => {
+    const frames = [...def.frames]
+    delete frames[0]
+    const malformed = { ...def, frames }
+    expect(() => validateMotion(malformed)).not.toThrow()
+    expect(validateMotion(malformed)).toContain('frame')
+  })
 
   it('uses real closed timelines for the three pilot motions', () => {
     expect(BODYWEIGHT_MOTIONS.squat).toMatchObject({ duration: 3.6, poster: 1 })

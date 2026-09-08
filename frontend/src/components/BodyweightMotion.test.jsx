@@ -3,9 +3,15 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../lib/bodyweight-motion.js', async importOriginal => {
   const actual = await importOriginal()
+  const sparseFrames = [...actual.motionFor('squat').frames]
+  delete sparseFrames[0]
   return {
     ...actual,
-    motionFor: id => id === 'malformed' ? { ...actual.motionFor('squat'), poster: undefined } : actual.motionFor(id),
+    motionFor: id => {
+      if (id === 'malformed') return { ...actual.motionFor('squat'), poster: undefined }
+      if (id === 'sparse') return { ...actual.motionFor('squat'), frames: sparseFrames }
+      return actual.motionFor(id)
+    },
   }
 })
 
@@ -41,6 +47,12 @@ describe('BodyweightMotion', () => {
     const render = () => renderToStaticMarkup(<BodyweightMotion motionId="malformed" label="Defekt" mode="player" />)
     expect(render).not.toThrow()
     expect(render()).toContain('aria-label="Defekt"')
+  })
+
+  it('renders a labelled fallback for a sparse owned definition', () => {
+    const render = () => renderToStaticMarkup(<BodyweightMotion motionId="sparse" label="Lückenhaft" mode="player" />)
+    expect(render).not.toThrow()
+    expect(render()).toContain('aria-label="Lückenhaft"')
   })
 
   it('animates every visible body anchor with the limb timeline', () => {
