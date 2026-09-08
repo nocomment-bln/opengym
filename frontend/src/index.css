@@ -541,6 +541,18 @@ h4.sec{
    at 180px you had to scroll a full screen between two exercises done back-to-back */
 .exmedia.compact img{height:120px}
 .exmedia.mini img{height:84px}
+.bodymotion{width:100%;height:320px;display:block;background:var(--surface);color:var(--label)}
+.bodymotion .motion-floor,.bodymotion .motion-wall{stroke:var(--sep);stroke-width:2}
+.bodymotion .motion-arm{stroke:var(--label-2);stroke-width:11;stroke-linecap:round}
+.bodymotion .motion-leg{stroke:var(--label);stroke-width:15;stroke-linecap:round}
+.bodymotion .motion-torso{fill:var(--acc);stroke:var(--label);stroke-width:2}
+.bodymotion .motion-head{fill:var(--label-2);stroke:var(--label);stroke-width:2}
+.bodymotion .motion-joint{fill:var(--surface);stroke:var(--label);stroke-width:2}
+.motion-thumb{width:50px;height:50px;border-radius:9px;background:var(--surface-2)}
+.exmedia.compact .bodymotion{height:120px}
+.exmedia.mini .bodymotion{height:84px}
+.motion-fallback{display:grid;place-items:center;min-height:120px;background:var(--surface);color:var(--label-3)}
+@media (prefers-reduced-motion:reduce){.bodymotion animate{display:none}}
 
 .sethead{
   display:flex;align-items:center;gap:8px;padding:0 0 6px;
