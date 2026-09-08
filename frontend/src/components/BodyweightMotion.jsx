@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BONES, keySplines, keyTimes, motionFor, posterPose, timelineValues, validateMotion } from '../lib/bodyweight-motion.js'
 
 const AnimatedNumber = ({ name, values, times, splines, duration }) => (
@@ -44,21 +44,45 @@ function PointAnimations({ joint, def, times, splines }) {
   </>
 }
 
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(() => (
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  ))
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const onChange = event => setReduced(event.matches)
+
+    setReduced(preference.matches)
+    if (preference.addEventListener) preference.addEventListener('change', onChange)
+    else preference.addListener?.(onChange)
+
+    return () => {
+      if (preference.removeEventListener) preference.removeEventListener('change', onChange)
+      else preference.removeListener?.(onChange)
+    }
+  }, [])
+
+  return reduced
+}
+
 export default function BodyweightMotion({ motionId, label, mode = 'player', paused = false, compact = false, mini = false }) {
   const svgRef = useRef(null)
   const def = motionFor(motionId)
-  const animated = mode === 'player'
+  const player = mode === 'player'
+  const reducedMotion = useReducedMotion()
+  const animated = player && !reducedMotion
 
   useEffect(() => {
     const svg = svgRef.current
-    if (!svg || !animated) return
+    if (!svg || !player) return
 
     let pageVisible = document.visibilityState !== 'hidden'
     let inViewport = true
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
     const syncPlayback = () => {
-      const canPlay = !paused && pageVisible && inViewport && !reducedMotion.matches
+      const canPlay = !paused && pageVisible && inViewport && !reducedMotion
       if (canPlay) svg.unpauseAnimations?.()
       else svg.pauseAnimations?.()
     }
@@ -66,7 +90,6 @@ export default function BodyweightMotion({ motionId, label, mode = 'player', pau
       pageVisible = document.visibilityState !== 'hidden'
       syncPlayback()
     }
-    const onReducedMotionChange = () => syncPlayback()
     const observer = 'IntersectionObserver' in window
       ? new IntersectionObserver(([entry]) => {
         inViewport = entry.isIntersecting
@@ -75,18 +98,14 @@ export default function BodyweightMotion({ motionId, label, mode = 'player', pau
       : null
 
     document.addEventListener('visibilitychange', onVisibilityChange)
-    reducedMotion.addEventListener?.('change', onReducedMotionChange)
-    reducedMotion.addListener?.(onReducedMotionChange)
     observer?.observe(svg)
     syncPlayback()
 
     return () => {
       observer?.disconnect()
       document.removeEventListener('visibilitychange', onVisibilityChange)
-      reducedMotion.removeEventListener?.('change', onReducedMotionChange)
-      reducedMotion.removeListener?.(onReducedMotionChange)
     }
-  }, [animated, paused])
+  }, [player, paused, reducedMotion])
 
   if (!def || validateMotion(def).length) return <div className="motion-fallback" role="img" aria-label={label} />
 

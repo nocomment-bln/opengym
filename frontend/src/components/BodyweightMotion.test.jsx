@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../lib/bodyweight-motion.js', async importOriginal => {
   const actual = await importOriginal()
@@ -18,6 +18,8 @@ vi.mock('../lib/bodyweight-motion.js', async importOriginal => {
 import BodyweightMotion from './BodyweightMotion.jsx'
 
 describe('BodyweightMotion', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
   it('renders an accessible animated player', () => {
     const html = renderToStaticMarkup(<BodyweightMotion motionId="squat" label="Kniebeuge" mode="player" />)
     expect(html).toContain('<svg')
@@ -60,5 +62,16 @@ describe('BodyweightMotion', () => {
     expect(html).toContain('attributeName="d"')
     expect((html.match(/attributeName="cx"/g) || [])).toHaveLength(15)
     expect((html.match(/attributeName="cy"/g) || [])).toHaveLength(15)
+  })
+
+  it('renders the selected poster pose without animation when reduced motion is preferred', () => {
+    vi.stubGlobal('window', {
+      matchMedia: () => ({ matches: true }),
+    })
+
+    const html = renderToStaticMarkup(<BodyweightMotion motionId="squat" label="Kniebeuge" mode="player" />)
+
+    expect(html).toContain('<circle class="motion-head" cx="120" cy="50"')
+    expect(html).not.toContain('<animate')
   })
 })
