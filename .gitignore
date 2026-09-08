@@ -17,6 +17,7 @@ node_modules/
 # Local AI-assistant tooling — contributor's own setup, not part of the app
 .claude/
 .codex/
+.worktrees/
 CLAUDE.md
 AGENTS.md
 .deploy-setup.local.json
