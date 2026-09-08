@@ -37,6 +37,7 @@ describe('bodyweight motion helpers', () => {
     expect(keySplines(def)).toBe('0.4 0 0.2 1;0.4 0 0.2 1')
   })
   it('returns null instead of throwing for an unknown key', () => expect(motionFor('missing')).toBeNull())
+  it('does not resolve inherited names as motion definitions', () => expect(motionFor('constructor')).toBeNull())
 
   it('uses real closed timelines for the three pilot motions', () => {
     expect(BODYWEIGHT_MOTIONS.squat).toMatchObject({ duration: 3.6, poster: 1 })
@@ -45,6 +46,16 @@ describe('bodyweight motion helpers', () => {
     for (const key of ['squat', 'standard-push-up', 'single-leg-hip-hinge']) {
       expect(BODYWEIGHT_MOTIONS[key].placeholder).not.toBe(true)
       expect(BODYWEIGHT_MOTIONS[key].frames).toHaveLength(3)
+    }
+  })
+
+  it('keeps pilot body anchors clear of the fixed renderer edge', () => {
+    for (const key of ['squat', 'standard-push-up', 'single-leg-hip-hinge']) {
+      for (const frame of BODYWEIGHT_MOTIONS[key].frames) {
+        for (const [joint, point] of Object.entries(frame.pose)) {
+          expect(point[0], `${key}:${joint}`).toBeLessThanOrEqual(232)
+        }
+      }
     }
   })
 

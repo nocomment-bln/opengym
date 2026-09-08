@@ -47,7 +47,7 @@ const PLANK_TOP = freezePose({
   wristL: [102, 184], wristR: [118, 184],
   hipL: [166, 142], hipR: [174, 148],
   kneeL: [208, 158], kneeR: [216, 164],
-  ankleL: [250, 172], ankleR: [258, 178],
+  ankleL: [218, 172], ankleR: [226, 178],
 })
 
 const PUSH_UP_BOTTOM = freezePose({
@@ -57,7 +57,7 @@ const PUSH_UP_BOTTOM = freezePose({
   wristL: [102, 184], wristR: [118, 184],
   hipL: [166, 166], hipR: [174, 172],
   kneeL: [208, 182], kneeR: [216, 188],
-  ankleL: [250, 196], ankleR: [258, 202],
+  ankleL: [218, 196], ankleR: [226, 202],
 })
 
 const SINGLE_LEG_STAND = mirror(pose(STAND, {

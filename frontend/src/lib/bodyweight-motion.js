@@ -9,7 +9,7 @@ export const BONES = [
   ['hipR', 'kneeR', 'leg'], ['kneeR', 'ankleR', 'leg'],
 ]
 
-export const motionFor = id => BODYWEIGHT_MOTIONS[id] || null
+export const motionFor = id => Object.hasOwn(BODYWEIGHT_MOTIONS, id) ? BODYWEIGHT_MOTIONS[id] : null
 export const keyTimes = def => def.frames.map(frame => frame.at).join(';')
 export const keySplines = def => def.frames.slice(1).map(() => '0.4 0 0.2 1').join(';')
 export const timelineValues = (def, joint, axis) => def.frames.map(frame => frame.pose[joint][axis]).join(';')

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { BONES, keySplines, keyTimes, motionFor, posterPose, timelineValues } from '../lib/bodyweight-motion.js'
+import { BONES, keySplines, keyTimes, motionFor, posterPose, timelineValues, validateMotion } from '../lib/bodyweight-motion.js'
 
 const AnimatedNumber = ({ name, values, times, splines, duration }) => (
   <animate attributeName={name} values={values} keyTimes={times}
@@ -22,6 +22,26 @@ function MotionBone({ bone, pose, def, animated, times, splines }) {
       </>}
     </line>
   )
+}
+
+const torsoPath = pose => {
+  const [shoulderLX, shoulderLY] = pose.shoulderL
+  const [shoulderRX, shoulderRY] = pose.shoulderR
+  const [hipRX, hipRY] = pose.hipR
+  const [hipLX, hipLY] = pose.hipL
+  return `M ${shoulderLX} ${shoulderLY} L ${shoulderRX} ${shoulderRY} L ${hipRX} ${hipRY} L ${hipLX} ${hipLY} Z`
+}
+
+const pathValues = def => def.frames.map(frame => torsoPath(frame.pose)).join(';')
+const midpointValues = (def, first, second, axis) => def.frames
+  .map(frame => (frame.pose[first][axis] + frame.pose[second][axis]) / 2)
+  .join(';')
+
+function PointAnimations({ joint, def, times, splines }) {
+  return <>
+    <AnimatedNumber name="cx" values={timelineValues(def, joint, 0)} times={times} splines={splines} duration={def.duration} />
+    <AnimatedNumber name="cy" values={timelineValues(def, joint, 1)} times={times} splines={splines} duration={def.duration} />
+  </>
 }
 
 export default function BodyweightMotion({ motionId, label, mode = 'player', paused = false, compact = false, mini = false }) {
@@ -68,7 +88,7 @@ export default function BodyweightMotion({ motionId, label, mode = 'player', pau
     }
   }, [animated, paused])
 
-  if (!def) return <div className="motion-fallback" role="img" aria-label={label} />
+  if (!def || validateMotion(def).length) return <div className="motion-fallback" role="img" aria-label={label} />
 
   const pose = posterPose(def)
   const times = keyTimes(def)
@@ -76,8 +96,6 @@ export default function BodyweightMotion({ motionId, label, mode = 'player', pau
   const [headX, headY] = pose.head
   const [hipLX, hipLY] = pose.hipL
   const [hipRX, hipRY] = pose.hipR
-  const [shoulderLX, shoulderLY] = pose.shoulderL
-  const [shoulderRX, shoulderRY] = pose.shoulderR
   const joints = [...new Set(BONES.flatMap(([from, to]) => [from, to]))]
   const className = `bodymotion${mode === 'thumbnail' ? ' motion-thumb' : ''}${compact ? ' compact' : ''}${mini ? ' mini' : ''}`
 
@@ -86,12 +104,23 @@ export default function BodyweightMotion({ motionId, label, mode = 'player', pau
       <line className="motion-floor" x1="16" y1="220" x2="224" y2="220" />
       {def.wall && <line className="motion-wall" x1={def.wall === 'left' ? 18 : 222} y1="16" x2={def.wall === 'left' ? 18 : 222} y2="220" />}
       {BONES.map(bone => <MotionBone key={`${bone[0]}-${bone[1]}`} bone={bone} pose={pose} def={def} animated={animated} times={times} splines={splines} />)}
-      <path className="motion-torso" d={`M ${shoulderLX} ${shoulderLY} L ${shoulderRX} ${shoulderRY} L ${hipRX} ${hipRY} L ${hipLX} ${hipLY} Z`} />
-      <ellipse className="motion-torso" cx={(hipLX + hipRX) / 2} cy={(hipLY + hipRY) / 2} rx="16" ry="8" />
-      <circle className="motion-head" cx={headX} cy={headY} r="16" />
+      <path className="motion-torso" d={torsoPath(pose)}>
+        {animated && <AnimatedNumber name="d" values={pathValues(def)} times={times} splines={splines} duration={def.duration} />}
+      </path>
+      <ellipse className="motion-torso" cx={(hipLX + hipRX) / 2} cy={(hipLY + hipRY) / 2} rx="16" ry="8">
+        {animated && <>
+          <AnimatedNumber name="cx" values={midpointValues(def, 'hipL', 'hipR', 0)} times={times} splines={splines} duration={def.duration} />
+          <AnimatedNumber name="cy" values={midpointValues(def, 'hipL', 'hipR', 1)} times={times} splines={splines} duration={def.duration} />
+        </>}
+      </ellipse>
+      <circle className="motion-head" cx={headX} cy={headY} r="16">
+        {animated && <PointAnimations joint="head" def={def} times={times} splines={splines} />}
+      </circle>
       {joints.map(joint => {
         const [cx, cy] = pose[joint]
-        return <circle key={joint} className="motion-joint" cx={cx} cy={cy} r="3" />
+        return <circle key={joint} className="motion-joint" cx={cx} cy={cy} r="3">
+          {animated && <PointAnimations joint={joint} def={def} times={times} splines={splines} />}
+        </circle>
       })}
     </svg>
   )
