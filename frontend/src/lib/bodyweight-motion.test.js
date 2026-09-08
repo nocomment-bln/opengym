@@ -28,6 +28,36 @@ const def = {
 }
 
 describe('bodyweight motion helpers', () => {
+  // Angle at the knee from the two rendered limb segments, in degrees.
+  const kneeAngle = (pose, side) => {
+    const hip = pose[`hip${side}`]
+    const knee = pose[`knee${side}`]
+    const ankle = pose[`ankle${side}`]
+    const thigh = [hip[0] - knee[0], hip[1] - knee[1]]
+    const shin = [ankle[0] - knee[0], ankle[1] - knee[1]]
+    return Math.acos((thigh[0] * shin[0] + thigh[1] * shin[1]) / (Math.hypot(...thigh) * Math.hypot(...shin))) * 180 / Math.PI
+  }
+
+  it('visibly bends both knees at lunge depth instead of showing straight split legs', () => {
+    for (const key of ['reverse-lunge', 'split-squat']) {
+      const pose = posterPose(BODYWEIGHT_MOTIONS[key])
+      for (const side of ['L', 'R']) {
+        const angle = kneeAngle(pose, side)
+        expect(angle, `${key}:${side}`).toBeGreaterThanOrEqual(70)
+        expect(angle, `${key}:${side}`).toBeLessThanOrEqual(120)
+      }
+    }
+  })
+
+  it('keeps the active knee bent on both sides of the quadruped lateral raise', () => {
+    const { frames } = BODYWEIGHT_MOTIONS['quadruped-lateral-leg-raise']
+    for (const [frameIndex, side] of [[1, 'L'], [3, 'R']]) {
+      const angle = kneeAngle(frames[frameIndex].pose, side)
+      expect(angle, side).toBeGreaterThanOrEqual(70)
+      expect(angle, side).toBeLessThanOrEqual(115)
+    }
+  })
+
   it('validates a closed normalized timeline', () => expect(validateMotion(def)).toEqual([]))
   it('returns the selected poster frame', () => expect(posterPose(def)).toBe(def.frames[1].pose))
   it('serializes SMIL values and key times', () => {

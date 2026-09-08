@@ -120,15 +120,15 @@ const NARROW_LOW = pose(SQUAT_BOTTOM, {
 const WIDE_STAND = pose(STAND, { kneeL: [84, 170], kneeR: [156, 170], ankleL: [60, 212], ankleR: [180, 212] })
 const SUMO_LOW = pose(SQUAT_BOTTOM, { hipL: [100, 148], hipR: [140, 148], kneeL: [60, 176], kneeR: [180, 176], ankleL: [60, 212], ankleR: [180, 212] })
 const LUNGE_LEFT = pose(STAND, {
-  head: [116, 58], neck: [116, 78], shoulderL: [100, 84], shoulderR: [132, 84],
-  elbowL: [88, 112], elbowR: [144, 112], wristL: [102, 136], wristR: [130, 136],
-  hipL: [104, 148], hipR: [128, 148], kneeL: [104, 178], kneeR: [166, 192],
+  head: [144, 70], neck: [144, 90], shoulderL: [132, 98], shoulderR: [156, 102],
+  elbowL: [120, 126], elbowR: [168, 130], wristL: [132, 150], wristR: [156, 154],
+  hipL: [138, 160], hipR: [150, 164], kneeL: [108, 166], kneeR: [150, 202],
   ankleL: [108, 212], ankleR: [192, 212],
 })
 const SPLIT_TOP = pose(LUNGE_LEFT, {
-  head: [116, 32], neck: [116, 52], shoulderL: [100, 58], shoulderR: [132, 58],
-  elbowL: [88, 86], elbowR: [144, 86], wristL: [102, 110], wristR: [130, 110],
-  hipL: [104, 122], hipR: [128, 122], kneeL: [104, 168], kneeR: [160, 168],
+  head: [144, 32], neck: [144, 52], shoulderL: [132, 58], shoulderR: [156, 62],
+  elbowL: [120, 86], elbowR: [168, 90], wristL: [132, 110], wristR: [156, 114],
+  hipL: [138, 122], hipR: [150, 126], kneeL: [120, 164], kneeR: [172, 170],
 })
 const LATERAL_LEFT = pose(WIDE_STAND, {
   head: [86, 60], neck: [86, 80], shoulderL: [70, 86], shoulderR: [102, 86],
@@ -169,7 +169,7 @@ const QUADRUPED = freezePose({
 const HIP_EXTENSION_L = pose(QUADRUPED, { kneeL: [176, 146], ankleL: [218, 146] })
 const HIP_EXTENSION_R = pose(QUADRUPED, { kneeR: [188, 152], ankleR: [230, 152] })
 const LATERAL_LEG_L = pose(QUADRUPED, { kneeL: [172, 114], ankleL: [208, 150] })
-const LATERAL_LEG_R = pose(QUADRUPED, { kneeR: [186, 178], ankleR: [218, 210] })
+const LATERAL_LEG_R = pose(QUADRUPED, { kneeR: [186, 178], ankleR: [218, 142] })
 
 const LOWER_MOTIONS = {
   'wall-squat': rep(WALL_SQUAT_TOP, WALL_SQUAT_LOW, 4, 'left'),
