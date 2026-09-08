@@ -17,8 +17,11 @@ export const posterPose = def => def.frames[Math.max(0, Math.min(def.poster, def
 
 export function validateMotion(def) {
   const errors = []
-  if (!def || !(def.duration >= 2 && def.duration <= 6)) errors.push('duration')
-  if (!Array.isArray(def?.frames) || def.frames.length < 2) return [...errors, 'frames']
+  if (!def || typeof def !== 'object') return ['definition']
+  if (!(def.duration >= 2 && def.duration <= 6)) errors.push('duration')
+  if (!Array.isArray(def.frames) || def.frames.length < 2) return [...errors, 'frames']
+  if (!Number.isInteger(def.poster) || def.poster < 0 || def.poster >= def.frames.length) errors.push('poster')
+  if (def.frames.some(frame => !frame || typeof frame !== 'object' || !Number.isFinite(frame.at))) return [...errors, 'frame']
   if (def.frames[0].at !== 0 || def.frames.at(-1).at !== 1) errors.push('range')
   if (def.frames.some((frame, i) => i && frame.at <= def.frames[i - 1].at)) errors.push('order')
   for (const frame of def.frames) {
@@ -27,6 +30,10 @@ export function validateMotion(def) {
       if (!Array.isArray(point) || point.length !== 2 || point.some(n => !Number.isFinite(n))) errors.push(`joint:${joint}`)
     }
   }
-  if (JSON.stringify(def.frames[0].pose) !== JSON.stringify(def.frames.at(-1).pose)) errors.push('loop')
+  if (!JOINTS.every(joint => {
+    const first = def.frames[0].pose?.[joint]
+    const last = def.frames.at(-1).pose?.[joint]
+    return Array.isArray(first) && Array.isArray(last) && first[0] === last[0] && first[1] === last[1]
+  })) errors.push('loop')
   return [...new Set(errors)]
 }

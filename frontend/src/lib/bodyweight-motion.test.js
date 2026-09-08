@@ -38,6 +38,16 @@ describe('bodyweight motion helpers', () => {
   })
   it('returns null instead of throwing for an unknown key', () => expect(motionFor('missing')).toBeNull())
   it('does not resolve inherited names as motion definitions', () => expect(motionFor('constructor')).toBeNull())
+  it('rejects a missing, fractional, or out-of-range poster index', () => {
+    expect(validateMotion({ ...def, poster: undefined })).toContain('poster')
+    expect(validateMotion({ ...def, poster: 1.5 })).toContain('poster')
+    expect(validateMotion({ ...def, poster: 3 })).toContain('poster')
+  })
+  it('returns errors instead of throwing for non-object frames', () => {
+    const malformed = { ...def, frames: [null, def.frames[1], def.frames[2]] }
+    expect(() => validateMotion(malformed)).not.toThrow()
+    expect(validateMotion(malformed)).toContain('frame')
+  })
 
   it('uses real closed timelines for the three pilot motions', () => {
     expect(BODYWEIGHT_MOTIONS.squat).toMatchObject({ duration: 3.6, poster: 1 })

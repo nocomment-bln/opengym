@@ -1,5 +1,14 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../lib/bodyweight-motion.js', async importOriginal => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    motionFor: id => id === 'malformed' ? { ...actual.motionFor('squat'), poster: undefined } : actual.motionFor(id),
+  }
+})
+
 import BodyweightMotion from './BodyweightMotion.jsx'
 
 describe('BodyweightMotion', () => {
@@ -26,6 +35,12 @@ describe('BodyweightMotion', () => {
     const render = () => renderToStaticMarkup(<BodyweightMotion motionId="constructor" label="Unbekannt" mode="player" />)
     expect(render).not.toThrow()
     expect(render()).toContain('motion-fallback')
+  })
+
+  it('renders a labelled fallback for a malformed owned definition', () => {
+    const render = () => renderToStaticMarkup(<BodyweightMotion motionId="malformed" label="Defekt" mode="player" />)
+    expect(render).not.toThrow()
+    expect(render()).toContain('aria-label="Defekt"')
   })
 
   it('animates every visible body anchor with the limb timeline', () => {
